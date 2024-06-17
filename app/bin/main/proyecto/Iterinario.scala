@@ -31,7 +31,7 @@ class Itinerario() {
       posiblesItinerarios.map(construirItinerarios)
     }
   }
- /*
+ 
    def itinerariosTiempo(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[Itinerario] = {
 
     def buscarVuelos(cod1: String, cod2: String): List[Itinerario] = {
@@ -99,7 +99,7 @@ class Itinerario() {
       itinerarios.sortBy(_.length).take(3)
     }
   }
-
+/*
   def itinerariosAire(vuelos: List[Vuelo], aeropuertos:List[Aeropuerto]): (String, String) => List[Itinerario] = {
     //Recibe una lista de vuelos y aeropuertos
     //Retorna una función que recibe los codigos de dos aeropuertos

@@ -77,7 +77,7 @@ class Itinerario() {
 
     (cod1: String, cod2: String) => buscarVuelos(cod1, cod2)
   } 
-/*
+
   def itinerariosEscalas(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[List[Vuelo]] = {
     // fun aux para hallar los itinerarios con menor escalas
     def encontrarItinerarios(cod1: String, cod2: String, visitados: Set[String], acumulado: List[Vuelo]): List[List[Vuelo]] = {
@@ -99,7 +99,7 @@ class Itinerario() {
       itinerarios.sortBy(_.length).take(3)
     }
   }
-
+/*
   def itinerariosAire(vuelos: List[Vuelo], aeropuertos:List[Aeropuerto]): (String, String) => List[Itinerario] = {
     //Recibe una lista de vuelos y aeropuertos
     //Retorna una función que recibe los codigos de dos aeropuertos
