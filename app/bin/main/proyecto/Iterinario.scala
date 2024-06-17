@@ -11,7 +11,7 @@ class Itinerario() {
         List(List())
       } else {
         vuelos.filter(_.Org == cod1).flatMap { vuelo =>
-          if (!visitados(vuelo.Dst)) {
+          if (!visitados.contains(vuelo.Dst)) {
             val nuevosVisitados = visitados + vuelo.Dst
             val itinerariosRestantes = buscarItinerarios(vuelo.Dst, cod2, nuevosVisitados)
             itinerariosRestantes.map(vuelo :: _)
@@ -22,8 +22,8 @@ class Itinerario() {
       }
     }
 
-    def construirItinerarios(vuelos: List[Vuelo]): List[Itinerario] = {
-      vuelos.map(vuelo => Itinerario(List(vuelo)))
+    def construirItinerarios(vuelos: List[Vuelo]): Itinerario = {
+      Itinerario(vuelos)
     }
 
     (cod1: String, cod2: String) => {
