@@ -5,7 +5,7 @@ class Itinerario() {
   type aeropuertos = List[Aeropuerto]
   type vuelos = List[Vuelo]
 
-  def itinerarios(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[Itinerario] = {
+  /*def itinerarios(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[Itinerario] = {
     def buscarItinerarios(cod1: String, cod2: String, visitados: Set[String]): List[List[Vuelo]] = {
       if (cod1 == cod2) {
         List(List())
@@ -30,7 +30,7 @@ class Itinerario() {
       val posiblesItinerarios = buscarItinerarios(cod1, cod2, Set())
       posiblesItinerarios.map(construirItinerarios)
     }
-  }
+  }*/
 
   def itinerariosTiempo(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[Itinerario] = {
 
