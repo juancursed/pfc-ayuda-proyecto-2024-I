@@ -32,7 +32,7 @@ class Itinerario() {
     }
   }
 
-  def itinerariosTiempo(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[Itinerario] = {
+  /* def itinerariosTiempo(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[Itinerario] = {
 
     def buscarVuelos(cod1: String, cod2: String): List[Itinerario] = {
       (cod1, cod2) match{
@@ -76,7 +76,7 @@ class Itinerario() {
     }
 
     (cod1: String, cod2: String) => buscarVuelos(cod1, cod2)
-  }
+  } */
 
   def itinerariosEscalas(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[List[Vuelo]] = {
     // fun aux para hallar los itinerarios con menor escalas
