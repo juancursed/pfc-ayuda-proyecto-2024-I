@@ -148,38 +148,39 @@ class Itinerario() {
   }
 }
 
-  def itinerariosSalida(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String, Int, Int) => List[Itinerario] = {
-    def convertirAMinutos(horas: Int, minutos: Int): Int = horas * 60 + minutos
+  def itinerariosSalida(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String, Int, Int) => List[List[Vuelo]] = {
+  def convertirAMinutos(horas: Int, minutos: Int): Int = horas * 60 + minutos
 
-    def encontrarItinerarios(cod1: String, cod2: String, visitados: Set[String], acumulado: List[Vuelo]): List[List[Vuelo]] = {
-      if (cod1 == cod2) {
-        List(acumulado.reverse)
-      } else {
-        val vuelosSalientes = vuelos.filter(v => v.Org == cod1 && !visitados(v.Dst))
-        vuelosSalientes.flatMap { vuelo =>
-          val nuevosVisitados = visitados + cod1
-          val nuevosAcumulado = vuelo :: acumulado
-          encontrarItinerarios(vuelo.Dst, cod2, nuevosVisitados, nuevosAcumulado)
-        }
+  def encontrarItinerarios(cod1: String, cod2: String, visitados: Set[String], acumulado: List[Vuelo]): List[List[Vuelo]] = {
+    if (cod1 == cod2) {
+      List(acumulado.reverse)
+    } else {
+      val vuelosSalientes = vuelos.filter(v => v.Org == cod1 && !visitados(v.Dst))
+      vuelosSalientes.flatMap { vuelo =>
+        val nuevosVisitados = visitados + cod1
+        val nuevosAcumulado = vuelo :: acumulado
+        encontrarItinerarios(vuelo.Dst, cod2, nuevosVisitados, nuevosAcumulado)
       }
-    }
-
-    def filtrarItinerariosPorHora(itinerarios: List[List[Vuelo]], horaCita: Int): List[List[Vuelo]] = {
-      itinerarios.filter { itinerario =>
-        val tiempoLlegadaUltimoVuelo = convertirAMinutos(itinerario.last.HL, itinerario.last.ML)
-        tiempoLlegadaUltimoVuelo <= horaCita
-      }
-    }
-
-    (cod1: String, cod2: String, HC: Int, MC: Int) => {
-      val horaCitaEnMinutos = convertirAMinutos(HC, MC)
-      val todosItinerarios = encontrarItinerarios(cod1, cod2, Set(), List())
-      val itinerariosValidos = filtrarItinerariosPorHora(todosItinerarios, horaCitaEnMinutos)
-      val mejoresItinerarios = itinerariosValidos.sortBy { itinerario =>
-        convertirAMinutos(itinerario.last.HL, itinerario.last.ML)
-      }.take(3)
-      mejoresItinerarios.map(Itinerario)
     }
   }
 
+  def filtrarItinerariosPorHora(itinerarios: List[List[Vuelo]], horaCita: Int): List[List[Vuelo]] = {
+    itinerarios.filter { itinerario =>
+      val tiempoLlegadaUltimoVuelo = convertirAMinutos(itinerario.last.HL, itinerario.last.ML)
+      tiempoLlegadaUltimoVuelo <= horaCita
+    }
+  }
+
+  (cod1: String, cod2: String, HC: Int, MC: Int) => {
+    val horaCitaEnMinutos = convertirAMinutos(HC, MC)
+    val todosItinerarios = encontrarItinerarios(cod1, cod2, Set(), List())
+    val itinerariosValidos = filtrarItinerariosPorHora(todosItinerarios, horaCitaEnMinutos)
+    val mejoresItinerarios = itinerariosValidos.sortBy { itinerario =>
+      convertirAMinutos(itinerario.last.HL, itinerario.last.ML)
+    }.take(3)
+    mejoresItinerarios // Devolver List[List[Vuelo]]
+  }
 }
+
+}
+
