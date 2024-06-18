@@ -5,70 +5,66 @@ class Itinerario() {
   type aeropuertos = List[Aeropuerto]
   type vuelos = List[Vuelo]
 
-  def itinerarios(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[Itinerario] = {
-    def buscarItinerarios(cod1: String, cod2: String, visitados: Set[String]): List[List[Vuelo]] = {
-      if (cod1 == cod2) {
-        List(List())
-      } else {
-        vuelos.filter(_.Org == cod1).flatMap { vuelo =>
-          if (!visitados.contains(vuelo.Dst)) {
-            val nuevosVisitados = visitados + vuelo.Dst
-            val itinerariosRestantes = buscarItinerarios(vuelo.Dst, cod2, nuevosVisitados)
-            itinerariosRestantes.map(vuelo :: _)
-          } else {
-            Nil
-          }
+  def itinerarios(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[List[Vuelo]] = {
+    def vuelosDesde(cod: String): List[Vuelo] =
+      vuelos.filter(_.Org == cod)
+
+    def encontrarItinerarios(cod1: String, cod2: String, visitados: List[String]): List[List[Vuelo]] = {
+      if (cod1 == cod2) List(List())
+      else {
+        val vuelosDisponibles = vuelosDesde(cod1).filterNot(v => visitados.contains(v.Dst))
+
+        vuelosDisponibles.flatMap { vuelo =>
+          val itinerariosRestantes = encontrarItinerarios(vuelo.Dst, cod2, visitados :+ vuelo.Dst)
+          itinerariosRestantes.map(vuelo :: _)
         }
       }
     }
 
-    def construirItinerarios(vuelos: List[Vuelo]): Itinerario = {
-      Itinerario(vuelos)
-    }
-
-    (cod1: String, cod2: String) => {
-      val posiblesItinerarios = buscarItinerarios(cod1, cod2, Set())
-      posiblesItinerarios.map(construirItinerarios)
-    }
+    (cod1: String, cod2: String) => encontrarItinerarios(cod1, cod2, List())
   }
 
-  def itinerariosTiempo(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[List[Vuelo]] = {
+  def itinerariosTiempo(vuelos: List[Vuelo], aeropuertos:List[Aeropuerto]): (String, String) => List[Itinerario] = {
 
-    def buscarVuelos(cod1: String, cod2: String): List[List[Vuelo]] = {
-      (cod1, cod2) match {
-        case (_, "") => List[List[Vuelo]]()
-        case ("", _) => List[List[Vuelo]]()
-        case (_, _) =>
-          val vuelosDirectos = vuelos.filter(v => v.Org == cod1 && v.Dst == cod2)
-          val vuelosConEscalasOrigen = vuelos.filter(v => v.Org == cod1)
-          val vuelosConEscalasDestino = vuelos.filter(v => v.Dst == cod2)
+    def buscarVuelos(cod1: String, cod2: String): List[Itinerario]={
 
-          def tiempoTotal(itinerario: List[Vuelo]): Int = {
-            val primerVuelo = itinerario.head
-            val ultimoVuelo = itinerario.last
-            val inicioMinutos = primerVuelo.HS * 60 + primerVuelo.MS
-            val finMinutos = ultimoVuelo.HL * 60 + ultimoVuelo.ML
-            finMinutos - inicioMinutos
-          }
+      if (cod1.trim.isEmpty || cod2.trim.isEmpty) {
+        List[Itinerario]()
+      } else {
+        val vuelosDirectos = vuelos.filter(v => v.Org == cod1 && v.Dst == cod2)
+        val vuelosConEscalas = vuelos.filter(v => v.Org == cod1 || v.Dst == cod2)
 
-          val itinerariosDirectos = vuelosDirectos.map(v => List(v))
+        def tiempoTotal(itinerario: List[Vuelo]): Int = {
+          val primerVuelo = itinerario.head
+          val ultimoVuelo = itinerario.last
+          val inicioMinutos = primerVuelo.HS * 60 + primerVuelo.MS
+          val finMinutos = ultimoVuelo.HL * 60 + ultimoVuelo.ML
+          finMinutos - inicioMinutos
+        }
 
-          val itinerariosUnaEscala = for {
-            f1 <- vuelosConEscalasOrigen
-            f2 <- vuelosConEscalasDestino if f1.Dst == f2.Org
-          } yield List(f1, f2)
+        val todosItinerarios = (vuelosDirectos.map(f => List(f)) ++
+          vuelosConEscalas.flatMap { f1 =>
+            val segundosTramos = vuelos.filter(v => v.Org == f1.Dst && v.Dst == cod2)
+            segundosTramos.map(f2 => List(f1, f2))
+          } ++
+          vuelosConEscalas.flatMap { f1 =>
+            val tramosIntermedios = vuelos.filter(v => v.Org == f1.Dst)
+            tramosIntermedios.flatMap { f2 =>
+              val tercerosTramos = vuelos.filter(v => v.Org == f2.Dst && v.Dst == cod2)
+              tercerosTramos.map(f3 => List(f1, f2, f3))
+            }
+          }).filter(itinerario => itinerario.nonEmpty)
 
-          val todosItinerarios = (itinerariosDirectos ++ itinerariosUnaEscala)
-            .filter(itinerario => itinerario.nonEmpty)
-
-          todosItinerarios.sortBy(tiempoTotal).take(3)
+        todosItinerarios
+          .sortBy(tiempoTotal)
+          .take(3)
+          .map(vuelos => Itinerario(vuelos))
       }
     }
 
     (cod1: String, cod2: String) => buscarVuelos(cod1, cod2)
   }
 
-  
   def itinerariosEscalas(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[List[Vuelo]] = {
     // fun aux para hallar los itinerarios con menor escalas
     def encontrarItinerarios(cod1: String, cod2: String, visitados: Set[String], acumulado: List[Vuelo]): List[List[Vuelo]] = {
@@ -91,66 +87,25 @@ class Itinerario() {
     }
   }
 
-  def itinerariosAire(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[Itinerario] = {
-
-  def distancia(a1: Aeropuerto, a2: Aeropuerto): Double = {
-    math.sqrt(math.pow(a2.X - a1.X, 2) + math.pow(a2.Y - a1.Y, 2))
+  def itinerariosAire(vuelos: List[Vuelo], aeropuertos:List[Aeropuerto]): (String, String) => List[Itinerario] = {
+    //Recibe una lista de vuelos y aeropuertos
+    //Retorna una función que recibe los codigos de dos aeropuertos
+    //Retorna todos los tres mejores itinerarios posibles de cod1 a cod2
+    //que minimizan el tiempo en itinerarios
+    (cod1:String, cod2:String)=> List[Itinerario]()
   }
 
-  def buscarVuelo(cod1: String, cod2: String): List[List[Vuelo]] = {
-    (cod1, cod2) match {
-      case ("", _) => List[List[Vuelo]]()
-      case (_, "") => List[List[Vuelo]]()
-      case (_ , _) =>
-        val vuelosDirectos = vuelos.filter(v => v.Org == cod1 && v.Dst == cod2)
-        val vuelosConEscalasOrigen = vuelos.filter(v => v.Org == cod1)
-        val vuelosConEscalasDestino = vuelos.filter(v => v.Dst == cod2)
-
-        val itinerariosDirectos = vuelosDirectos.map(v => List(v))
-
-        val itinerariosUnaEscala = for {
-          f1 <- vuelosConEscalasOrigen
-          f2 <- vuelosConEscalasDestino if f1.Dst == f2.Org
-        } yield List(f1, f2)
-
-        val itinerariosDosEscalas = for {
-          f1 <- vuelosConEscalasOrigen
-          f2 <- vuelos.filter(v => v.Org == f1.Dst)
-          f3 <- vuelosConEscalasDestino if f2.Dst == f3.Org
-        } yield List(f1, f2, f3)
-
-        itinerariosDirectos ++ itinerariosUnaEscala ++ itinerariosDosEscalas
-      }
-    }
-
-
-  def calcularDistanciaTotal(itinerario: List[Vuelo]): Double = {
-    itinerario.map { vuelo =>
-      val origen = aeropuertos.find(_.Cod == vuelo.Org).get
-      val destino = aeropuertos.find(_.Cod == vuelo.Dst).get
-      distancia(origen, destino)
-    }.sum
-  }
-
-  (cod1: String, cod2: String) => {
-    val vuelosEncontrados = buscarVuelo(cod1, cod2)
-    val itinerariosOrdenados = vuelosEncontrados.sortBy(calcularDistanciaTotal).take(3)
-    itinerariosOrdenados.map(Itinerario)
-  }
-}
-
- def itinerariosSalida(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String, Int, Int) => List[List[Vuelo]] = {
+  def itinerariosSalida(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String, Int, Int) => List[List[Vuelo]] = {
   // Convierte horas y minutos a minutos totales.
   def convertirAMinutos(horas: Int, minutos: Int): Int = horas * 60 + minutos
 
-  // Encuentra itinerarios recursivamente evitando ciclos y duplicados.
+  // Encuentra itinerarios recursivamente evitando ciclos y vuelos no deseados.
   def encontrarItinerarios(cod1: String, cod2: String, visitados: Set[String], acumulado: List[Vuelo]): List[List[Vuelo]] = {
     if (cod1 == cod2) {
       List(acumulado.reverse)
     } else {
       val vuelosSalientes = vuelos.filter(v => v.Org == cod1 && !visitados.contains(v.Dst))
       vuelosSalientes.flatMap { vuelo =>
-        // Evita ciclos y vuelos no deseados.
         if (!acumulado.exists(_.Num == vuelo.Num)) {
           val nuevosVisitados = visitados + vuelo.Dst
           val nuevosAcumulado = vuelo :: acumulado
@@ -204,21 +159,6 @@ class Itinerario() {
     mejoresItinerarios.sortWith(compararItinerarios).reverse
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }
