@@ -111,13 +111,13 @@ class Itinerario() {
             f3 <- vuelosConEscalasDestino if f2.Dst == f3.Org
           } yield List(f1, f2, f3)
 
-          val todosItinerarios = itinerariosDirectos ++ itinerariosUnaEscala ++ itinerariosDosEscalas
-
           // Filtrar itinerarios que contienen vuelos repetidos
-          todosItinerarios.filter(itinerario => {
-            val uniqueVuelos = itinerario.distinct
+          val todosItinerarios = (itinerariosDirectos ++ itinerariosUnaEscala ++ itinerariosDosEscalas).filter(itinerario => {
+            val uniqueVuelos = itinerario.map(v => (v.Org, v.Dst)).distinct
             uniqueVuelos.length == itinerario.length
           })
+
+          todosItinerarios
       }
     }
 
