@@ -162,16 +162,20 @@ class Itinerario() {
     }
   }
 
+  def ordenarItinerarios(itinerarios: List[List[Vuelo]]): List[List[Vuelo]] = {
+    itinerarios.sortBy { itinerario =>
+      val llegadaUltimoVuelo = convertirAMinutos(itinerario.last.HL, itinerario.last.ML)
+      llegadaUltimoVuelo
+    }
+  }
+
   (cod1: String, cod2: String, HC: Int, MC: Int) => {
     val horaCitaEnMinutos = convertirAMinutos(HC, MC)
     val todosItinerarios = encontrarItinerarios(cod1, cod2, Set(), List())
     val itinerariosValidos = filtrarItinerariosPorHora(todosItinerarios, horaCitaEnMinutos)
-    val mejoresItinerarios = itinerariosValidos.sortBy { itinerario =>
-      convertirAMinutos(itinerario.last.HL, itinerario.last.ML)
-    }.take(3)
-    mejoresItinerarios // Devolver List[List[Vuelo]]
+    val mejoresItinerarios = ordenarItinerarios(itinerariosValidos).take(3)
+    mejoresItinerarios
   }
 }
 
 }
-
