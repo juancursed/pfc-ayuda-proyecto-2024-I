@@ -162,13 +162,12 @@ class Itinerario() {
     }
   }
 
-  // Ordena los itinerarios de acuerdo a la hora de llegada del último vuelo y el número de escalas.
   def ordenarItinerarios(itinerarios: List[List[Vuelo]]): List[List[Vuelo]] = {
-    itinerarios.sortBy { itinerario =>
-      val tiempoLlegadaUltimoVuelo = convertirAMinutos(itinerario.last.HL, itinerario.last.ML)
-      (tiempoLlegadaUltimoVuelo, itinerario.size)
-    }
+  itinerarios.sortBy { itinerario =>
+    val tiempoLlegadaUltimoVuelo = convertirAMinutos(itinerario.last.HL, itinerario.last.ML)
+    (tiempoLlegadaUltimoVuelo, itinerario.size, itinerario.map(_.Num).mkString)
   }
+
 
   // Compara itinerarios para asegurar que se ordenen en el orden esperado por los tests.
   def compararItinerarios(a: List[Vuelo], b: List[Vuelo]): Boolean = {
