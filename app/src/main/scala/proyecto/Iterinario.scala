@@ -156,11 +156,11 @@ class Itinerario() {
 
   // Filtra itinerarios que llegan antes de la hora de cita.
   def filtrarItinerariosPorHora(itinerarios: List[List[Vuelo]], horaCita: Int): List[List[Vuelo]] = {
-    itinerarios.filter { itinerario =>
-      val tiempoLlegadaUltimoVuelo = convertirAMinutos(itinerario.last.HL, itinerario.last.ML)
-      tiempoLlegadaUltimoVuelo <= horaCita
-    }
+  itinerarios.filter { itinerario =>
+    val tiempoLlegadaUltimoVuelo = convertirAMinutos(itinerario.last.HL, itinerario.last.ML)
+    tiempoLlegadaUltimoVuelo > horaCita
   }
+}
 
   def ordenarItinerarios(itinerarios: List[List[Vuelo]]): List[List[Vuelo]] = {
   itinerarios.sortBy { itinerario =>
