@@ -31,17 +31,17 @@ class Itinerario() {
       posiblesItinerarios.map(construirItinerarios)
     }
   }
- 
-   def itinerariosTiempo(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[Itinerario] = {
 
-    def buscarVuelos(cod1: String, cod2: String): List[Itinerario] = {
-      (cod1, cod2) match{
-        case (_, "") => List[Itinerario]()
-        case ("", _) => List[Itinerario]()
-        case (_ , _) =>
-            val vuelosDirectos = vuelos.filter(v => v.Org == cod1 && v.Dst == cod2)
-            val vuelosConEscalasOrigen = vuelos.filter(v => v.Org == cod1)
-            val vuelosConEscalasDestino = vuelos.filter(v => v.Dst == cod2)
+  def itinerariosTiempo(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[List[Vuelo]] = {
+
+    def buscarVuelos(cod1: String, cod2: String): List[List[Vuelo]] = {
+      (cod1, cod2) match {
+        case (_, "") => List[List[Vuelo]]()
+        case ("", _) => List[List[Vuelo]]()
+        case (_, _) =>
+          val vuelosDirectos = vuelos.filter(v => v.Org == cod1 && v.Dst == cod2)
+          val vuelosConEscalasOrigen = vuelos.filter(v => v.Org == cod1)
+          val vuelosConEscalasDestino = vuelos.filter(v => v.Dst == cod2)
 
           def tiempoTotal(itinerario: List[Vuelo]): Int = {
             val primerVuelo = itinerario.head
@@ -58,26 +58,17 @@ class Itinerario() {
             f2 <- vuelosConEscalasDestino if f1.Dst == f2.Org
           } yield List(f1, f2)
 
-          val itinerariosDosEscalas = for {
-            f1 <- vuelosConEscalasOrigen
-            f2 <- vuelos.filter(v => v.Org == f1.Dst)
-            f3 <- vuelosConEscalasDestino if f2.Dst == f3.Org
-          } yield List(f1, f2, f3)
-
-          val todosItinerarios = (itinerariosDirectos ++ itinerariosUnaEscala ++ itinerariosDosEscalas)
+          val todosItinerarios = (itinerariosDirectos ++ itinerariosUnaEscala)
             .filter(itinerario => itinerario.nonEmpty)
 
-          todosItinerarios
-            .sortBy(tiempoTotal)
-            .take(3)
-            .map(Itinerario)
-
+          todosItinerarios.sortBy(tiempoTotal).take(3)
       }
     }
 
     (cod1: String, cod2: String) => buscarVuelos(cod1, cod2)
-  } 
+  }
 
+  
   def itinerariosEscalas(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[List[Vuelo]] = {
     // fun aux para hallar los itinerarios con menor escalas
     def encontrarItinerarios(cod1: String, cod2: String, visitados: Set[String], acumulado: List[Vuelo]): List[List[Vuelo]] = {
