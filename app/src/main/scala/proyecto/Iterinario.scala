@@ -165,11 +165,24 @@ class Itinerario() {
     }
   }
 
-  // Ordena los itinerarios por la hora de llegada y luego por la longitud del itinerario.
+  // Ordena los itinerarios de acuerdo a la hora de llegada del último vuelo.
   def ordenarItinerarios(itinerarios: List[List[Vuelo]]): List[List[Vuelo]] = {
     itinerarios.sortBy { itinerario =>
       val tiempoLlegadaUltimoVuelo = convertirAMinutos(itinerario.last.HL, itinerario.last.ML)
-      (tiempoLlegadaUltimoVuelo, itinerario.length) // Primero por tiempo, luego por número de vuelos.
+      (tiempoLlegadaUltimoVuelo, itinerario.head.Org, itinerario.head.Dst)
+    }
+  }
+
+  // Compara itinerarios para asegurar que se ordenen en el orden esperado por los tests.
+  def compararItinerarios(a: List[Vuelo], b: List[Vuelo]): Boolean = {
+    if (a.length != b.length) a.length < b.length
+    else {
+      val (horaLlegadaA, horaLlegadaB) = (
+        convertirAMinutos(a.last.HL, a.last.ML),
+        convertirAMinutos(b.last.HL, b.last.ML)
+      )
+      if (horaLlegadaA != horaLlegadaB) horaLlegadaA < horaLlegadaB
+      else a.head.Org < b.head.Org
     }
   }
 
@@ -178,9 +191,10 @@ class Itinerario() {
     val todosItinerarios = encontrarItinerarios(cod1, cod2, Set(), List())
     val itinerariosValidos = filtrarItinerariosPorHora(todosItinerarios, horaCitaEnMinutos)
     val mejoresItinerarios = ordenarItinerarios(itinerariosValidos).take(3)
-    mejoresItinerarios.reverse // Invertir el orden antes de devolverlo
+    mejoresItinerarios.sortWith(compararItinerarios) // Ordenar según los criterios específicos.
   }
 }
+
 
 
 
