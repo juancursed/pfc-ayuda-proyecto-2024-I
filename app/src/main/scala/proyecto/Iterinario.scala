@@ -150,9 +150,14 @@ class Itinerario() {
     } else {
       val vuelosSalientes = vuelos.filter(v => v.Org == cod1 && !visitados.contains(v.Dst))
       vuelosSalientes.flatMap { vuelo =>
-        val nuevosVisitados = visitados + vuelo.Dst
-        val nuevosAcumulado = vuelo :: acumulado
-        encontrarItinerarios(vuelo.Dst, cod2, nuevosVisitados, nuevosAcumulado)
+        // Evita ciclos y vuelos no deseados.
+        if (!acumulado.exists(_.Num == vuelo.Num)) {
+          val nuevosVisitados = visitados + vuelo.Dst
+          val nuevosAcumulado = vuelo :: acumulado
+          encontrarItinerarios(vuelo.Dst, cod2, nuevosVisitados, nuevosAcumulado)
+        } else {
+          Nil
+        }
       }
     }
   }
@@ -175,14 +180,18 @@ class Itinerario() {
 
   // Compara itinerarios para asegurar que se ordenen en el orden esperado por los tests.
   def compararItinerarios(a: List[Vuelo], b: List[Vuelo]): Boolean = {
-    if (a.size != b.size) a.size < b.size
-    else {
+    if (a.size != b.size) {
+      a.size < b.size
+    } else {
       val (horaLlegadaA, horaLlegadaB) = (
         convertirAMinutos(a.last.HL, a.last.ML),
         convertirAMinutos(b.last.HL, b.last.ML)
       )
-      if (horaLlegadaA != horaLlegadaB) horaLlegadaA < horaLlegadaB
-      else a.head.Org < b.head.Org
+      if (horaLlegadaA != horaLlegadaB) {
+        horaLlegadaA < horaLlegadaB
+      } else {
+        a.head.Org < b.head.Org
+      }
     }
   }
 
@@ -191,10 +200,11 @@ class Itinerario() {
     val todosItinerarios = encontrarItinerarios(cod1, cod2, Set(), List())
     val itinerariosValidos = filtrarItinerariosPorHora(todosItinerarios, horaCitaEnMinutos)
     val mejoresItinerarios = ordenarItinerarios(itinerariosValidos).take(3)
-    // Invierte la lista de los mejores itinerarios para devolverlos en el orden inverso
-    mejoresItinerarios.reverse.sortWith(compararItinerarios) // Ordenar según los criterios específicos.
+    // Invierte la lista de los mejores itinerarios para devolverlos en el orden inverso.
+    mejoresItinerarios.sortWith(compararItinerarios).reverse
   }
 }
+
 
 
 
