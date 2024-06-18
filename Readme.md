@@ -1,3 +1,5 @@
 # Repositorio base
 
-Este repositorio tiene las configuraciones y librerías necesarias para trabajar concurrencia
+Juan Camilo Gutierrez Viveros - 2159874
+Andrès Felipe Rojas - 2160328
+uan David Valencia Montalvo 2160103
