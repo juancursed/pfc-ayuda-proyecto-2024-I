@@ -165,7 +165,7 @@ class Itinerario() {
     }
   }
 
-  // Ordena los itinerarios por la hora de llegada y luego por el número de vuelos.
+  // Ordena los itinerarios por la hora de llegada y luego por la longitud del itinerario.
   def ordenarItinerarios(itinerarios: List[List[Vuelo]]): List[List[Vuelo]] = {
     itinerarios.sortBy { itinerario =>
       val tiempoLlegadaUltimoVuelo = convertirAMinutos(itinerario.last.HL, itinerario.last.ML)
@@ -182,4 +182,3 @@ class Itinerario() {
   }
 }
 
-}
