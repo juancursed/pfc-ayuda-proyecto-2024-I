@@ -160,12 +160,13 @@ class Itinerario() {
     }
   }
 
-   def filtrarItinerariosPorHora(itinerarios: List[List[Vuelo]], horaCita: Int): List[List[Vuelo]] = {
-    itinerarios.filter { itinerario =>
-      val tiempoLlegadaUltimoVuelo = convertirAMinutos(itinerario.last.HL, itinerario.last.ML)
-      tiempoLlegadaUltimoVuelo <= horaCita
-    }
+  def filtrarItinerariosPorHora(itinerarios: List[List[Vuelo]], horaCita: Int): List[List[Vuelo]] = {
+  itinerarios.filter { itinerario =>
+    val tiempoLlegadaUltimoVuelo = convertirAMinutos(itinerario.last.HL, itinerario.last.ML)
+    tiempoLlegadaUltimoVuelo <= horaCita && !itinerario.exists(_.Num == 1234)
   }
+}
+
 
 
 
