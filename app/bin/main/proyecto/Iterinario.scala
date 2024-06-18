@@ -141,20 +141,20 @@ class Itinerario() {
 
  def itinerariosSalida(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String, Int, Int) => List[List[Vuelo]] = {
   def convertirAMinutos(horas: Int, minutos: Int): Int = horas * 60 + minutos
-
   def encontrarItinerarios(cod1: String, cod2: String, visitados: Set[String], acumulado: List[Vuelo]): List[List[Vuelo]] = {
     if (cod1 == cod2) {
       List(acumulado.reverse)
     } else {
-      val vuelosSalientes = vuelos.filter(v => v.Org == cod1 && !visitados(v.Dst))
+      val vuelosSalientes = vuelos.filter(v => v.Org == cod1 && !visitados.contains(v.Dst))
       vuelosSalientes.flatMap { vuelo =>
-        val nuevosVisitados = visitados + cod1
+        val nuevosVisitados = visitados + vuelo.Dst
         val nuevosAcumulado = vuelo :: acumulado
         encontrarItinerarios(vuelo.Dst, cod2, nuevosVisitados, nuevosAcumulado)
       }
     }
   }
 
+  // Filtra itinerarios que llegan antes de la hora de cita.
   def filtrarItinerariosPorHora(itinerarios: List[List[Vuelo]], horaCita: Int): List[List[Vuelo]] = {
     itinerarios.filter { itinerario =>
       val tiempoLlegadaUltimoVuelo = convertirAMinutos(itinerario.last.HL, itinerario.last.ML)
@@ -164,18 +164,21 @@ class Itinerario() {
 
   def ordenarItinerarios(itinerarios: List[List[Vuelo]]): List[List[Vuelo]] = {
     itinerarios.sortBy { itinerario =>
-      val llegadaUltimoVuelo = convertirAMinutos(itinerario.last.HL, itinerario.last.ML)
-      llegadaUltimoVuelo
+      val tiempoLlegadaUltimoVuelo = convertirAMinutos(itinerario.last.HL, itinerario.last.ML)
+      tiempoLlegadaUltimoVuelo
     }
   }
 
   (cod1: String, cod2: String, HC: Int, MC: Int) => {
     val horaCitaEnMinutos = convertirAMinutos(HC, MC)
+    // Encuentra todos los itinerarios posibles.
     val todosItinerarios = encontrarItinerarios(cod1, cod2, Set(), List())
+    // Filtra los que llegan a tiempo.
     val itinerariosValidos = filtrarItinerariosPorHora(todosItinerarios, horaCitaEnMinutos)
+    // Ordena los itinerarios por la hora de llegada.
     val mejoresItinerarios = ordenarItinerarios(itinerariosValidos).take(3)
+    // Devuelve la lista de listas de vuelos.
     mejoresItinerarios
   }
 }
 
-}
