@@ -178,9 +178,10 @@ class Itinerario() {
     val todosItinerarios = encontrarItinerarios(cod1, cod2, Set(), List())
     val itinerariosValidos = filtrarItinerariosPorHora(todosItinerarios, horaCitaEnMinutos)
     val mejoresItinerarios = ordenarItinerarios(itinerariosValidos).take(3)
-    mejoresItinerarios
+    mejoresItinerarios.reverse // Invertir el orden antes de devolverlo
   }
 }
+
 
 
 
