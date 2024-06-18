@@ -140,7 +140,10 @@ class Itinerario() {
 }
 
  def itinerariosSalida(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String, Int, Int) => List[List[Vuelo]] = {
+  // Convierte horas y minutos a minutos totales.
   def convertirAMinutos(horas: Int, minutos: Int): Int = horas * 60 + minutos
+
+  // Encuentra itinerarios recursivamente evitando ciclos y duplicados.
   def encontrarItinerarios(cod1: String, cod2: String, visitados: Set[String], acumulado: List[Vuelo]): List[List[Vuelo]] = {
     if (cod1 == cod2) {
       List(acumulado.reverse)
@@ -162,23 +165,21 @@ class Itinerario() {
     }
   }
 
+  // Ordena los itinerarios por la hora de llegada y luego por el número de vuelos.
   def ordenarItinerarios(itinerarios: List[List[Vuelo]]): List[List[Vuelo]] = {
     itinerarios.sortBy { itinerario =>
       val tiempoLlegadaUltimoVuelo = convertirAMinutos(itinerario.last.HL, itinerario.last.ML)
-      tiempoLlegadaUltimoVuelo
+      (tiempoLlegadaUltimoVuelo, itinerario.length) // Primero por tiempo, luego por número de vuelos.
     }
   }
 
   (cod1: String, cod2: String, HC: Int, MC: Int) => {
     val horaCitaEnMinutos = convertirAMinutos(HC, MC)
-    // Encuentra todos los itinerarios posibles.
     val todosItinerarios = encontrarItinerarios(cod1, cod2, Set(), List())
-    // Filtra los que llegan a tiempo.
     val itinerariosValidos = filtrarItinerariosPorHora(todosItinerarios, horaCitaEnMinutos)
-    // Ordena los itinerarios por la hora de llegada.
     val mejoresItinerarios = ordenarItinerarios(itinerariosValidos).take(3)
-    // Devuelve la lista de listas de vuelos.
     mejoresItinerarios
   }
 }
+
 }
