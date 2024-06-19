@@ -65,7 +65,6 @@ class Itinerario() {
 
           todosItinerarios.sortBy(tiempoTotal).take(3)
       }
-    }
 
     (cod1: String, cod2: String) => buscarVuelos(cod1, cod2)
   }
@@ -168,14 +167,13 @@ class Itinerario() {
         }
       }
     }
-  }
 
   def filtrarItinerariosPorHora(itinerarios: List[List[Vuelo]], horaCita: Int): List[List[Vuelo]] = {
   itinerarios.filter { itinerario =>
     val tiempoLlegadaUltimoVuelo = convertirAMinutos(itinerario.last.HL, itinerario.last.ML)
     tiempoLlegadaUltimoVuelo <= horaCita && !itinerario.exists(_.Num == 1234)
   }
-}
+ }
 
 
 
@@ -212,9 +210,10 @@ class Itinerario() {
     val mejoresItinerarios = ordenarItinerarios(itinerariosValidos).take(3)
     // Devuelve solo los mejores itinerarios, evitando incluir más de los necesarios.
     mejoresItinerarios.sortWith(compararItinerarios)
+    }
   }
-}
-
+  }
+  }
 
 
 
