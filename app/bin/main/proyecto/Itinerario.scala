@@ -10,19 +10,21 @@ class Itinerario() {
       vuelos.filter(_.Org == cod)
 
     def encontrarItinerarios(cod1: String, cod2: String, visitados: List[String]): List[List[Vuelo]] = {
-      if (cod1 == cod2) List(List())
-      else {
-        val vuelosDisponibles = vuelosDesde(cod1).filterNot(v => visitados.contains(v.Dst))
-
-        vuelosDisponibles.flatMap { vuelo =>
-          val itinerariosRestantes = encontrarItinerarios(vuelo.Dst, cod2, visitados :+ vuelo.Dst)
-          itinerariosRestantes.map(vuelo :: _)
-        }
+  val memo = scala.collection.mutable.Map[(String, List[String]), List[List[Vuelo]]]()
+  def aux(cod1: String, cod2: String, visitados: List[String]): List[List[Vuelo]] = {
+    if (memo.contains((cod1, visitados))) return memo((cod1, visitados))
+    if (cod1 == cod2) List(List())
+    else {
+      val vuelosDisponibles = vuelosDesde(cod1).filterNot(v => visitados.contains(v.Dst))
+      val resultados = vuelosDisponibles.flatMap { vuelo =>
+        aux(vuelo.Dst, cod2, visitados :+ vuelo.Dst).map(vuelo :: _)
       }
+      memo((cod1, visitados)) = resultados
+      resultados
     }
-
-    (cod1: String, cod2: String) => encontrarItinerarios(cod1, cod2, List())
   }
+  aux(cod1, cod2, visitados)
+ }}
 
   def itinerariosTiempo(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[List[Vuelo]] = {
 
