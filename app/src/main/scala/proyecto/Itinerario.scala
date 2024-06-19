@@ -7,15 +7,15 @@ class Itinerario() {
 
   def itinerarios(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[List[Vuelo]] = {
     def vuelosDesde(cod: String): List[Vuelo] =
-      vuelos.filter(_.org == cod)
+      vuelos.filter(_.Org == cod)
 
     def encontrarItinerarios(cod1: String, cod2: String, visitados: List[String]): List[List[Vuelo]] = {
       if (cod1 == cod2) List(List())
       else {
-        val vuelosDisponibles = vuelosDesde(cod1).filterNot(v => visitados.contains(v.dst))
+        val vuelosDisponibles = vuelosDesde(cod1).filterNot(v => visitados.contains(v.Dst))
 
         vuelosDisponibles.flatMap { vuelo =>
-          val itinerariosRestantes = encontrarItinerarios(vuelo.dst, cod2, visitados :+ vuelo.dst)
+          val itinerariosRestantes = encontrarItinerarios(vuelo.Dst, cod2, visitados :+ vuelo.Dst)
           itinerariosRestantes.map(vuelo :: _)
         }
       }
