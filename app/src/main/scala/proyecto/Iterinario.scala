@@ -4,7 +4,9 @@ class Itinerario() {
   case class Itinerario(vuelos: List[Vuelo])
   type aeropuertos = List[Aeropuerto]
   type vuelos = List[Vuelo]
+  type itinerario = List[vuelos]
 
+<<<<<<< Updated upstream
   def itinerarios(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[List[Vuelo]] = {
     def vuelosDesde(cod: String): List[Vuelo] =
       vuelos.filter(_.Org == cod)
@@ -17,14 +19,44 @@ class Itinerario() {
         vuelosDisponibles.flatMap { vuelo =>
           val itinerariosRestantes = encontrarItinerarios(vuelo.Dst, cod2, visitados :+ vuelo.Dst)
           itinerariosRestantes.map(vuelo :: _)
+=======
+  def itinerarios(vuelos: vuelos, aeropuertos: aeropuertos): (String, String) => List[Itinerario] = {
+    // Función recursiva para buscar todos los itinerarios posibles
+    def buscarItinerarios(cod1: String, cod2: String, visitados: Set[String]): List[List[Vuelo]] = {
+      if (cod1 == cod2) {
+        List(List())
+      } else {
+        vuelos.filter(_.Org == cod1).flatMap { vuelo =>
+          if (!visitados(vuelo.Dst)) {
+            val nuevosVisitados = visitados + vuelo.Dst
+            val itinerariosRestantes = buscarItinerarios(vuelo.Dst, cod2, nuevosVisitados)
+            itinerariosRestantes.map(vuelo :: _)
+          } else {
+            Nil
+          }
+>>>>>>> Stashed changes
         }
       }
     }
 
+<<<<<<< Updated upstream
     (cod1: String, cod2: String) => encontrarItinerarios(cod1, cod2, List())
   }
 
   def itinerariosTiempo(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[List[Vuelo]] = {
+=======
+    // Función para convertir listas de listas de vuelos a listas de itinerarios
+    def construirItinerarios(vuelos: List[List[Vuelo]]): List[Itinerario] = {
+      vuelos.map(Itinerario)
+    }
+
+    (cod1: String, cod2: String) => {
+      val posiblesItinerarios = buscarItinerarios(cod1, cod2, Set())
+      construirItinerarios(posiblesItinerarios)
+    }
+  }
+
+>>>>>>> Stashed changes
 
     def buscarVuelos(cod1: String, cod2: String): List[List[Vuelo]] = {
       (cod1, cod2) match {
@@ -224,3 +256,4 @@ class Itinerario() {
 
 
 }
+
