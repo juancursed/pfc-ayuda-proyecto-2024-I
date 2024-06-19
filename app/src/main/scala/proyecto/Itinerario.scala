@@ -1,12 +1,12 @@
 package proyecto
 
 class Itinerario() {
-  case class Itinerario(vuelos: List[Vuelo])
-  type aeropuertos = List[Aeropuerto]
-  type vuelos = List[Vuelo]
-  type itinerario = List[vuelos]
+    case class Itinerario(vuelos: List[Vuelo])
+    type aeropuertos = List[Aeropuerto]
+    type vuelos = List[Vuelo]
+    type itinerario = List[vuelos]
 
-  def itinerarios(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[List[Vuelo]] = {
+   def itinerarios(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[List[Vuelo]] = {
     def vuelosDesde(cod: String): List[Vuelo] =
       vuelos.filter(_.Org == cod)
 
@@ -31,7 +31,7 @@ class Itinerario() {
       val posiblesItinerarios = buscarItinerarios(cod1, cod2, Set())
       construirItinerarios(posiblesItinerarios)
     }
-  }
+   }
 
 
     def buscarVuelos(cod1: String, cod2: String): List[List[Vuelo]] = {
@@ -63,10 +63,10 @@ class Itinerario() {
 
           todosItinerarios.sortBy(tiempoTotal).take(3)
       }
+    (cod1: String, cod2: String) => buscarVuelos(cod1, cod2)
     }
 
-    (cod1: String, cod2: String) => buscarVuelos(cod1, cod2)
-  }
+  
 
   
   def itinerariosEscalas(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[List[Vuelo]] = {
@@ -215,7 +215,7 @@ class Itinerario() {
 
 
 
-
+}
 
 
 
