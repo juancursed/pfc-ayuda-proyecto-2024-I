@@ -22,9 +22,9 @@ class Itinerario() {
       memo((cod1, visitados)) = resultados
       resultados
     }
-  }
+  }}
   aux(cod1, cod2, visitados)
- }}
+ }
 
   def itinerariosTiempo(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[List[Vuelo]] = {
 
