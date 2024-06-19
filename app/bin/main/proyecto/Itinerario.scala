@@ -4,27 +4,37 @@ class Itinerario() {
   case class Itinerario(vuelos: List[Vuelo])
   type aeropuertos = List[Aeropuerto]
   type vuelos = List[Vuelo]
+  type itinerario = List[vuelos]
 
-  def itinerarios(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[List[Vuelo]] = {
-    def vuelosDesde(cod: String): List[Vuelo] =
-      vuelos.filter(_.Org == cod)
-
-    def encontrarItinerarios(cod1: String, cod2: String, visitados: List[String]): List[List[Vuelo]] = {
-      if (cod1 == cod2) List(List())
-      else {
-        val vuelosDisponibles = vuelosDesde(cod1).filterNot(v => visitados.contains(v.Dst))
-
-        vuelosDisponibles.flatMap { vuelo =>
-          val itinerariosRestantes = encontrarItinerarios(vuelo.Dst, cod2, visitados :+ vuelo.Dst)
-          itinerariosRestantes.map(vuelo :: _)
+  def itinerarios(vuelos: vuelos, aeropuertos: aeropuertos): (String, String) => List[Itinerario] = {
+    // Función recursiva para buscar todos los itinerarios posibles
+    def buscarItinerarios(cod1: String, cod2: String, visitados: Set[String]): List[List[Vuelo]] = {
+      if (cod1 == cod2) {
+        List(List())
+      } else {
+        vuelos.filter(_.Org == cod1).flatMap { vuelo =>
+          if (!visitados(vuelo.Dst)) {
+            val nuevosVisitados = visitados + vuelo.Dst
+            val itinerariosRestantes = buscarItinerarios(vuelo.Dst, cod2, nuevosVisitados)
+            itinerariosRestantes.map(vuelo :: _)
+          } else {
+            Nil
+          }
         }
       }
     }
 
-    (cod1: String, cod2: String) => encontrarItinerarios(cod1, cod2, List())
+    // Función para convertir listas de listas de vuelos a listas de itinerarios
+    def construirItinerarios(vuelos: List[List[Vuelo]]): List[Itinerario] = {
+      vuelos.map(Itinerario)
+    }
+
+    (cod1: String, cod2: String) => {
+      val posiblesItinerarios = buscarItinerarios(cod1, cod2, Set())
+      construirItinerarios(posiblesItinerarios)
+    }
   }
 
-  def itinerariosTiempo(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[List[Vuelo]] = {
 
     def buscarVuelos(cod1: String, cod2: String): List[List[Vuelo]] = {
       (cod1, cod2) match {
@@ -111,13 +121,13 @@ class Itinerario() {
             f3 <- vuelosConEscalasDestino if f2.Dst == f3.Org
           } yield List(f1, f2, f3)
 
-          val todosItinerarios = itinerariosDirectos ++ itinerariosUnaEscala ++ itinerariosDosEscalas
-
           // Filtrar itinerarios que contienen vuelos repetidos
-          todosItinerarios.filter(itinerario => {
-            val uniqueVuelos = itinerario.distinct
+          val todosItinerarios = (itinerariosDirectos ++ itinerariosUnaEscala ++ itinerariosDosEscalas).filter(itinerario => {
+            val uniqueVuelos = itinerario.map(v => (v.Org, v.Dst)).distinct
             uniqueVuelos.length == itinerario.length
           })
+
+          todosItinerarios
       }
     }
 
@@ -193,7 +203,7 @@ class Itinerario() {
         a.head.Org < b.head.Org
       }
     }
-  }
+  
 
   (cod1: String, cod2: String, HC: Int, MC: Int) => {
     val horaCitaEnMinutos = convertirAMinutos(HC, MC)
@@ -224,3 +234,4 @@ class Itinerario() {
 
 
 }
+

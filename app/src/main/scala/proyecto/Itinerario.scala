@@ -6,20 +6,6 @@ class Itinerario() {
   type vuelos = List[Vuelo]
   type itinerario = List[vuelos]
 
-<<<<<<< Updated upstream
-  def itinerarios(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[List[Vuelo]] = {
-    def vuelosDesde(cod: String): List[Vuelo] =
-      vuelos.filter(_.Org == cod)
-
-    def encontrarItinerarios(cod1: String, cod2: String, visitados: List[String]): List[List[Vuelo]] = {
-      if (cod1 == cod2) List(List())
-      else {
-        val vuelosDisponibles = vuelosDesde(cod1).filterNot(v => visitados.contains(v.Dst))
-
-        vuelosDisponibles.flatMap { vuelo =>
-          val itinerariosRestantes = encontrarItinerarios(vuelo.Dst, cod2, visitados :+ vuelo.Dst)
-          itinerariosRestantes.map(vuelo :: _)
-=======
   def itinerarios(vuelos: vuelos, aeropuertos: aeropuertos): (String, String) => List[Itinerario] = {
     // Función recursiva para buscar todos los itinerarios posibles
     def buscarItinerarios(cod1: String, cod2: String, visitados: Set[String]): List[List[Vuelo]] = {
@@ -34,17 +20,10 @@ class Itinerario() {
           } else {
             Nil
           }
->>>>>>> Stashed changes
         }
       }
     }
 
-<<<<<<< Updated upstream
-    (cod1: String, cod2: String) => encontrarItinerarios(cod1, cod2, List())
-  }
-
-  def itinerariosTiempo(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[List[Vuelo]] = {
-=======
     // Función para convertir listas de listas de vuelos a listas de itinerarios
     def construirItinerarios(vuelos: List[List[Vuelo]]): List[Itinerario] = {
       vuelos.map(Itinerario)
@@ -56,7 +35,6 @@ class Itinerario() {
     }
   }
 
->>>>>>> Stashed changes
 
     def buscarVuelos(cod1: String, cod2: String): List[List[Vuelo]] = {
       (cod1, cod2) match {
@@ -225,7 +203,7 @@ class Itinerario() {
         a.head.Org < b.head.Org
       }
     }
-  }
+  
 
   (cod1: String, cod2: String, HC: Int, MC: Int) => {
     val horaCitaEnMinutos = convertirAMinutos(HC, MC)
