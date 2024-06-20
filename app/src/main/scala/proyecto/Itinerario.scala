@@ -5,24 +5,53 @@ class Itinerario() {
   type aeropuertos = List[Aeropuerto]
   type vuelos = List[Vuelo]
 
-  def itinerarios(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[List[Vuelo]] = {
-  def encontrarItinerarios(origen: String, destino: String): List[List[Vuelo]] = {
-    def buscarRuta(actual: String, destino: String, visitados: Set[String], rutaActual: List[Vuelo]): List[List[Vuelo]] = {
-      if (actual == destino) List(rutaActual)
-      else {
-        val vuelosPosibles = vuelos.filter(v => v.origen == actual && !visitados.contains(v.destino))
-        vuelosPosibles.flatMap { vuelo =>
-          buscarRuta(vuelo.destino, destino, visitados + vuelo.origen, rutaActual :+ vuelo)
-        }
-      }
-    }
-
-    buscarRuta(origen, destino, Set.empty, List.empty)
+  def itinerarios(aeropuertoOrigen: String, aeropuertoDestino: String): List[(List[String], Int, Int)] = {
+  // Función auxiliar para buscar los vuelos desde un aeropuerto
+  def buscarVuelos(origen: String): List[(String, Int, String, Int, Int)] = {
+    datos.vuelosCurso.filter(_._3 == origen)
   }
 
-  encontrarItinerarios
-}
+  // Función auxiliar para calcular la duración del vuelo
+  def duracionVuelo(vuelo: (String, Int, String, Int, Int)): Int = {
+    val (_, _, _, horaSalida, minutoSalida) = vuelo
+    val (_, _, _, horaLlegada, minutoLlegada, _) = vuelo
+    (horaLlegada - horaSalida) * 60 + (minutoLlegada - minutoSalida)
+  }
 
+  // Función para calcular la duración total de un itinerario
+  def duracionTotal(itinerario: List[(String, Int, String, Int, Int)]): Int = {
+    itinerario.map(duracionVuelo).sum
+  }
+
+  // Función auxiliar para obtener la distancia total de un itinerario
+  def distanciaTotal(itinerario: List[(String, Int, String, Int, Int)]): Int = {
+    itinerario.map { case (_, _, _, _, _, dist) => dist }.sum
+  }
+
+  // Función recursiva para buscar itinerarios
+  def buscarItinerarios(origen: String, destino: String, visitados: List[String] = Nil): List[List[(String, Int, String, Int, Int)]] = {
+    if (origen == destino) {
+      List(Nil)
+    } else {
+      val vuelosDisponibles = buscarVuelos(origen).filter { case (_, _, _, _, _, _) => !visitados.contains(origen) }
+      vuelosDisponibles.flatMap { vuelo =>
+        val (_, _, destinoVuelo, _, _, _) = vuelo
+        buscarItinerarios(destinoVuelo, destino, origen :: visitados).map(vuelo :: _)
+      }
+    }
+  }
+
+  // Buscar itinerarios desde el origen al destino
+  val itinerariosEncontrados = buscarItinerarios(aeropuertoOrigen, aeropuertoDestino)
+
+  // Convertir los itinerarios a la forma requerida
+  itinerariosEncontrados.map { itinerario =>
+    val escalas = itinerario.map(_._3)
+    val duracion = duracionTotal(itinerario)
+    val distancia = distanciaTotal(itinerario)
+    (escalas, duracion, distancia)
+  }
+ }
 
   def itinerariosTiempo(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[List[Vuelo]] = {
 
